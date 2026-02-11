@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TicketFinder Web</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; background: #f6f7fb; color: #1b1e2b; }
+      .container { max-width: 980px; margin: 2rem auto; padding: 0 1rem; }
+      .card { background: #fff; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.08); padding: 1rem; margin-bottom: 1rem; }
+      form { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: .75rem; align-items: end; }
+      label { display: block; font-size: .85rem; margin-bottom: .25rem; color: #555; }
+      input { width: 100%; padding: .6rem; border: 1px solid #ccd2e0; border-radius: 8px; }
+      button { padding: .65rem 1rem; border: 0; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { text-align: left; border-bottom: 1px solid #e8ecf3; padding: .65rem .4rem; font-size: .92rem; }
+      th { color: #4a5568; }
+      .muted { color: #667085; }
+      @media (max-width: 900px) { form { grid-template-columns: 1fr 1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>TicketFinder</h1>
+      <p class="muted">Scan ticket listings across marketplaces for arbitrage opportunities.</p>
+
+      <div class="card">
+        <form method="get" action="/">
+          <div>
+            <label for="event">Event</label>
+            <input id="event" name="event" required value="{{ event }}" placeholder="Taylor Swift" />
+          </div>
+          <div>
+            <label for="state">State</label>
+            <input id="state" name="state" maxlength="2" value="{{ state }}" placeholder="NY" />
+          </div>
+          <div>
+            <label for="min_profit">Min Profit ($)</label>
+            <input id="min_profit" name="min_profit" type="number" step="0.01" min="0" value="{{ min_profit }}" />
+          </div>
+          <div>
+            <label for="min_roi">Min ROI (decimal)</label>
+            <input id="min_roi" name="min_roi" type="number" step="0.01" min="0" value="{{ min_roi }}" />
+          </div>
+          <div>
+            <button type="submit">Scan</button>
+          </div>
+        </form>
+      </div>
+
+      {% if event %}
+      <div class="card">
+        {% if opportunities %}
+          <h2>Found {{ opportunities|length }} opportunities</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Location</th>
+                <th>Seat</th>
+                <th>Qty</th>
+                <th>Buy</th>
+                <th>Sell</th>
+                <th>Profit</th>
+                <th>ROI</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in opportunities %}
+              <tr>
+                <td>{{ item.event_name }}</td>
+                <td>{{ item.city }}, {{ item.state }}</td>
+                <td>{{ item.section }}-{{ item.row }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.buy_platform }} @ ${{ "%.2f"|format(item.buy_price) }}</td>
+                <td>{{ item.sell_platform }} @ ${{ "%.2f"|format(item.sell_price) }}</td>
+                <td>${{ "%.2f"|format(item.estimated_profit) }}</td>
+                <td>{{ "%.2f"|format(item.roi * 100) }}%</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <h2>No opportunities found</h2>
+          <p class="muted">Try lowering min profit/ROI filters or broadening your search.</p>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
